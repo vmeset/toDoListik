@@ -8,7 +8,6 @@ export const Notes = ({notes, removeNote, toggleNote, alert}) => {
     const [searchVal, setSearchVal] = useState("")
     const [sort, setSort] = useState('asc')
     const [usNotes, setUsNotes] = useState(notes)
-    const [sortField, setSortField] = useState("")
 
     useEffect(() => {
         setUsNotes(notes)
@@ -18,8 +17,7 @@ export const Notes = ({notes, removeNote, toggleNote, alert}) => {
     const onSort = (type) => {
         const copyNotes = notes.concat()
         const sortType = sort === 'asc' ? 'desc' : 'asc'
-        setSortField(type)
-        const orderedNotes = _.orderBy(copyNotes, sortField, sortType)
+        const orderedNotes = _.orderBy(copyNotes, type, sortType)
         setSort(sortType)
         setUsNotes(orderedNotes)
     }
