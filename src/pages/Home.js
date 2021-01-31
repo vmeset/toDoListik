@@ -1,11 +1,13 @@
-import React, {Fragment, useContext, useEffect, useState} from 'react'
+import React, {Fragment, useContext, useEffect} from 'react'
 import {Form} from '../components/Form'
 import {Notes} from '../components/Notes'
 import {FirebaseContext} from '../context/firebase/firebaseContext'
 import {Loader} from '../components/Loader'
+import {AlertContext} from "../context/alert/alertContext";
 
 export const Home = () => {
     const {loading, notes, fetchNotes, removeNote, toggleNote} = useContext(FirebaseContext)
+    const alert = useContext(AlertContext)
 
     useEffect(() => {
         fetchNotes()
@@ -16,6 +18,8 @@ export const Home = () => {
 
     return (
         <Fragment>
+            <h2>Список задач</h2>
+
             <Form/>
 
             <hr/>
@@ -23,8 +27,10 @@ export const Home = () => {
             {loading
                 ? <Loader/>
                 : <Notes notes={inCompleteNotes}
-                         onRemove={removeNote}
-                         onComplete={toggleNote} />
+                         removeNote={removeNote}
+                         toggleNote={toggleNote}
+                         alert={alert}
+                />
             }
         </Fragment>
     )

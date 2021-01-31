@@ -15,7 +15,9 @@ const handlers = {
     ...state,
     notes: state.notes.map(note => {
       if (note.id === payload.id) {
-        return {...note, completed: true}
+        if (note.completed) {
+          return {...note, completed: false}
+        } else {return {...note, completed: true}}
       }
       return note
     })

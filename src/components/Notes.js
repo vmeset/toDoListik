@@ -1,32 +1,37 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {TransitionGroup, CSSTransition} from "react-transition-group";
-import {AlertContext} from "../context/alert/alertContext";
-import * as moment from 'moment'
-import _ from 'lodash'
+import _ from "lodash";
+import * as moment from "moment";
 
-export const Notes = ({notes, onRemove, onComplete}) => {
+export const Notes = ({notes, removeNote, toggleNote, alert}) => {
 
-    const alert = useContext(AlertContext)
     const [searchVal, setSearchVal] = useState("")
     const [sort, setSort] = useState('asc')
     const [usNotes, setUsNotes] = useState(notes)
+    const [sortField, setSortField] = useState("")
 
-    const onSort = () => {
-        const copyNotes = usNotes.concat()
-        // console.log(copyNotes)
+    useEffect(() => {
+        setUsNotes(notes)
+        // eslint-disable-next-line
+    }, [notes])
+
+    const onSort = (type) => {
+        const copyNotes = notes.concat()
         const sortType = sort === 'asc' ? 'desc' : 'asc'
-        const orderedNotes = _.orderBy(copyNotes, "title", sortType)
-        setUsNotes(orderedNotes)
+        setSortField(type)
+        const orderedNotes = _.orderBy(copyNotes, sortField, sortType)
         setSort(sortType)
+        setUsNotes(orderedNotes)
     }
-
-    const onRemoveAlert = (note) => {
-        onRemove(note.id)
+    const onRemove = (note) => {
+        removeNote(note.id)
         alert.show(`Заметка ${note.title} удаленна`, 'success')
     }
-    const onCompleteAlert = (note) => {
-        onComplete(note)
-        alert.show(`Задача ${note.title} выполнена`, 'success')
+    const onComplete = (note) => {
+        toggleNote(note)
+        if(note.completed){
+            alert.show(`Задача ${note.title} возобновлена`, 'success')
+        } else {alert.show(`Задача ${note.title} выполнена`, 'success')}
     }
     const formatDate = (date) => {
         return (
@@ -37,18 +42,29 @@ export const Notes = ({notes, onRemove, onComplete}) => {
     return (
         <TransitionGroup component="ul" className='list-group'>
             <div className={"note"}>
-                <button className="btn btn-outline-danger btn-sm"
-                        onClick={onSort}
+                <button className="btn btn-light btn-sm"
+                        onClick={() => {
+                            onSort("title")
+                        }}
                 >
                     сортировка по имени
                 </button>
-                <input type="text" placeholder={"найди нужную заметку"} className="form-control"
-                       onChange={(e) => (setSearchVal(e.target.value))} />
+                <input type="text" placeholder={"найди нужную заметку"} className="form-control-sm border light col-sm-8"
+                       onChange={(e) => (setSearchVal(e.target.value))}/>
+                <button className="btn btn-light btn-sm"
+                        onClick={() => {
+                            onSort("date")
+                        }}
+                >
+                    сортировка по дате
+                </button>
+
             </div>
+            <hr/>
             {usNotes.filter((val) => {
-                if(searchVal == ""){
+                if (searchVal == "") {
                     return val
-                } else if(val.title.toLowerCase().includes(searchVal.toLowerCase())){
+                } else if (val.title.toLowerCase().includes(searchVal.toLowerCase())) {
                     return val
                 }
             }).map(note => (
@@ -60,39 +76,27 @@ export const Notes = ({notes, onRemove, onComplete}) => {
                     <li className='list-group-item note'>
                         <div>
                             <strong>{note.title}</strong>
-                            <small>{formatDate(note.date)}</small>
                         </div>
                         <div>
+                            <small>{formatDate(note.date)}</small>
                             <button
                                 type="button"
-                                className="btn btn-outline-danger btn-sm"
+                                className="btn btn-outline-danger btn-sm ml-4 mr-4"
                                 onClick={() => {
-                                    onRemoveAlert(note)
+                                    onRemove(note)
                                 }}
                             >
                                 &times;
                             </button>
-                            {!note.completed
-                                ? <button
-                                    type="button"
-                                    className="btn btn-outline-success btn-sm ml-4"
-                                    onClick={() => {
-                                        onCompleteAlert(note)
-                                    }}
-                                >
-                                    &#10003;
-                                </button>
-                                : <button
-                                    type="button"
-                                    className="btn btn-outline-success btn-sm ml-4"
-                                    data-toggle="tooltip" title="Повторить задачу"
-                                    onClick={() => {
-                                        onCompleteAlert(note)
-                                    }}
-                                >
-                                    ↩
-                                </button>
-                            }
+                            <button
+                                type="button"
+                                className="btn btn-outline-success btn-sm"
+                                onClick={() => {
+                                    onComplete(note)
+                                }}
+                            >
+                                {note.completed ? `↩` : '✓'}
+                            </button>
                         </div>
                     </li>
                 </CSSTransition>

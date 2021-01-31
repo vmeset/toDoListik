@@ -29,7 +29,7 @@ export const Form = () => {
         <input
           type="text"
           className="form-control"
-          placeholder="Введите название заметки"
+          placeholder="Добавить новую заметку"
           value={value}
           onChange={e => setValue(e.target.value)}
         />
